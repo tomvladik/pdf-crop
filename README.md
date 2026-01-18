@@ -52,12 +52,14 @@ Purego mode still requires MuPDF shared libraries and libffi at runtime. Set the
 ```
 pdf_crop -i input.pdf --threshold 0.008 --space 5
 pdf_crop -i input.pdf -p 0 0 0 0 0 out0.pdf
+pdf_crop --help
 ```
 
 ### crop_all_pdf
 
 ```
 crop_all_pdf --dir ./pdfs --threshold 0.1
+crop_all_pdf --help
 ```
 
 ## License

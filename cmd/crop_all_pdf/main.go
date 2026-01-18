@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -16,6 +17,22 @@ type args struct {
 	DPI       float64
 }
 
+var errHelp = errors.New("help requested")
+
+func printUsage() {
+	fmt.Println("crop_all_pdf - Crop all PDFs in a directory")
+	fmt.Println("")
+	fmt.Println("Usage:")
+	fmt.Println("  crop_all_pdf --dir <path> [--threshold <float>] [--space <int>] [--dpi <float>]")
+	fmt.Println("")
+	fmt.Println("Options:")
+	fmt.Println("  -d, --dir           Directory containing PDFs (default: current directory)")
+	fmt.Println("      --threshold      Detection threshold (default: 0.1)")
+	fmt.Println("      --space          Extra whitespace in points (default: 5)")
+	fmt.Println("      --dpi            Rasterization DPI (default: 128)")
+	fmt.Println("  -h, --help          Show this help and exit")
+}
+
 func parseArgs(argv []string) (args, error) {
 	parsed := args{
 		Threshold: 0.1,
@@ -24,6 +41,8 @@ func parseArgs(argv []string) (args, error) {
 	}
 	for i := 0; i < len(argv); i++ {
 		switch argv[i] {
+		case "-h", "--help":
+			return parsed, errHelp
 		case "-d", "--dir":
 			if i+1 >= len(argv) {
 				return parsed, fmt.Errorf("missing value for %s", argv[i])
@@ -70,7 +89,14 @@ func parseArgs(argv []string) (args, error) {
 func main() {
 	parsed, err := parseArgs(os.Args[1:])
 	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
+		if errors.Is(err, errHelp) {
+			printUsage()
+			os.Exit(0)
+		}
+		// Print error and usage to stdout as requested
+		fmt.Println(err)
+		fmt.Println()
+		printUsage()
 		os.Exit(1)
 	}
 

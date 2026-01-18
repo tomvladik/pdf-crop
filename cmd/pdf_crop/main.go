@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"strconv"
@@ -16,6 +17,24 @@ type args struct {
 	DPI       float64
 }
 
+var errHelp = errors.New("help requested")
+
+func printUsage() {
+	fmt.Println("pdf_crop - Crop PDF pages using raster detection")
+	fmt.Println("")
+	fmt.Println("Usage:")
+	fmt.Println("  pdf_crop -i <input.pdf> [--threshold <float>] [--space <int>] [--dpi <float>]")
+	fmt.Println("  pdf_crop -i <input.pdf> -p <page> <left> <top> <right> <bottom> <out.pdf> [repeatable]")
+	fmt.Println("")
+	fmt.Println("Options:")
+	fmt.Println("  -i, --input_file    Path to input PDF (required)")
+	fmt.Println("  -p, --page          Per-page crop + output: page left top right bottom out.pdf (can repeat)")
+	fmt.Println("      --threshold      Detection threshold (default: 0.008)")
+	fmt.Println("      --space          Extra whitespace in points (default: 5)")
+	fmt.Println("      --dpi            Rasterization DPI (default: 128)")
+	fmt.Println("  -h, --help          Show this help and exit")
+}
+
 func parseArgs(argv []string) (args, error) {
 	parsed := args{
 		Space:     5,
@@ -24,6 +43,8 @@ func parseArgs(argv []string) (args, error) {
 	}
 	for i := 0; i < len(argv); i++ {
 		switch argv[i] {
+		case "-h", "--help":
+			return parsed, errHelp
 		case "-i", "--input_file":
 			if i+1 >= len(argv) {
 				return parsed, fmt.Errorf("missing value for %s", argv[i])
@@ -109,7 +130,14 @@ func parseArgs(argv []string) (args, error) {
 func main() {
 	parsed, err := parseArgs(os.Args[1:])
 	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
+		if errors.Is(err, errHelp) {
+			printUsage()
+			os.Exit(0)
+		}
+		// Print error and usage to stdout as requested
+		fmt.Println(err)
+		fmt.Println()
+		printUsage()
 		os.Exit(1)
 	}
 
