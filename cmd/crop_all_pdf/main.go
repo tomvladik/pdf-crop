@@ -5,10 +5,9 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"strconv"
 
-	"pdf-crop/internal/cli"
-	"pdf-crop/internal/crop"
+	cli "pdf-crop/internal/cli"
+	"pdf-crop/pkg/crop"
 )
 
 type args struct {
@@ -35,41 +34,42 @@ func parseArgs(argv []string) (args, error) {
 		case "-h", "--help":
 			return parsed, errHelp
 		case "-d", "--dir":
-			if i+1 >= len(argv) {
-				return parsed, fmt.Errorf("missing value for %s", argv[i])
+			val, next, err := cli.RequireValue(argv, i, argv[i])
+			if err != nil {
+				return parsed, err
 			}
-			parsed.Dir = argv[i+1]
-			i++
+			parsed.Dir = val
+			i = next
 		case "--threshold":
-			if i+1 >= len(argv) {
-				return parsed, fmt.Errorf("missing value for --threshold")
-			}
-			val, err := strconv.ParseFloat(argv[i+1], 64)
+			val, next, err := cli.RequireValue(argv, i, "--threshold")
 			if err != nil {
-				return parsed, fmt.Errorf("invalid --threshold: %w", err)
+				return parsed, err
 			}
-			parsed.Threshold = val
-			i++
+			parsed.Threshold, err = cli.ParseFloat(val, "--threshold")
+			if err != nil {
+				return parsed, err
+			}
+			i = next
 		case "--space":
-			if i+1 >= len(argv) {
-				return parsed, fmt.Errorf("missing value for --space")
-			}
-			val, err := strconv.Atoi(argv[i+1])
+			val, next, err := cli.RequireValue(argv, i, "--space")
 			if err != nil {
-				return parsed, fmt.Errorf("invalid --space: %w", err)
+				return parsed, err
 			}
-			parsed.Space = val
-			i++
+			parsed.Space, err = cli.ParseInt(val, "--space")
+			if err != nil {
+				return parsed, err
+			}
+			i = next
 		case "--dpi":
-			if i+1 >= len(argv) {
-				return parsed, fmt.Errorf("missing value for --dpi")
-			}
-			val, err := strconv.ParseFloat(argv[i+1], 64)
+			val, next, err := cli.RequireValue(argv, i, "--dpi")
 			if err != nil {
-				return parsed, fmt.Errorf("invalid --dpi: %w", err)
+				return parsed, err
 			}
-			parsed.DPI = val
-			i++
+			parsed.DPI, err = cli.ParseFloat(val, "--dpi")
+			if err != nil {
+				return parsed, err
+			}
+			i = next
 		default:
 			return parsed, fmt.Errorf("unknown argument: %s", argv[i])
 		}

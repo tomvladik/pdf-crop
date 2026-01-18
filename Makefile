@@ -51,11 +51,11 @@ all: build ## Build all binaries
 
 build: $(DIST_DIR)/$(PDF_CROP_BIN)$(BINARY_EXT) $(DIST_DIR)/$(CROP_ALL_PDF_BIN)$(BINARY_EXT) ## Build both binaries
 
-$(DIST_DIR)/$(PDF_CROP_BIN)$(BINARY_EXT): cmd/pdf_crop/main.go internal/crop/*.go
+$(DIST_DIR)/$(PDF_CROP_BIN)$(BINARY_EXT): cmd/pdf_crop/main.go pkg/crop/*.go internal/cli/*.go
 	@mkdir -p $(DIST_DIR)
 	CGO_ENABLED=$(CGO_ENABLED) $(GOBUILD) $(BUILD_FLAGS) -o $@ ./cmd/pdf_crop
 
-$(DIST_DIR)/$(CROP_ALL_PDF_BIN)$(BINARY_EXT): cmd/crop_all_pdf/main.go internal/crop/*.go
+$(DIST_DIR)/$(CROP_ALL_PDF_BIN)$(BINARY_EXT): cmd/crop_all_pdf/main.go pkg/crop/*.go internal/cli/*.go
 	@mkdir -p $(DIST_DIR)
 	CGO_ENABLED=$(CGO_ENABLED) $(GOBUILD) $(BUILD_FLAGS) -o $@ ./cmd/crop_all_pdf
 

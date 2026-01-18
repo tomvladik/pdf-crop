@@ -4,10 +4,9 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"strconv"
 
-	"pdf-crop/internal/cli"
-	"pdf-crop/internal/crop"
+	cli "pdf-crop/internal/cli"
+	"pdf-crop/pkg/crop"
 )
 
 type args struct {
@@ -35,36 +34,38 @@ func parseArgs(argv []string) (args, error) {
 		case "-h", "--help":
 			return parsed, errHelp
 		case "-i", "--input_file":
-			if i+1 >= len(argv) {
-				return parsed, fmt.Errorf("missing value for %s", argv[i])
+			val, next, err := cli.RequireValue(argv, i, argv[i])
+			if err != nil {
+				return parsed, err
 			}
-			parsed.InputFile = argv[i+1]
-			i++
+			parsed.InputFile = val
+			i = next
 		case "-p", "--page":
-			if i+6 >= len(argv) {
-				return parsed, fmt.Errorf("--page requires 6 arguments")
-			}
-			pageNo, err := strconv.Atoi(argv[i+1])
+			vals, next, err := cli.RequireValues(argv, i, 6, "--page")
 			if err != nil {
-				return parsed, fmt.Errorf("invalid page number: %w", err)
+				return parsed, err
 			}
-			left, err := strconv.Atoi(argv[i+2])
+			pageNo, err := cli.ParseInt(vals[0], "page number")
 			if err != nil {
-				return parsed, fmt.Errorf("invalid left value: %w", err)
+				return parsed, err
 			}
-			top, err := strconv.Atoi(argv[i+3])
+			left, err := cli.ParseInt(vals[1], "left value")
 			if err != nil {
-				return parsed, fmt.Errorf("invalid top value: %w", err)
+				return parsed, err
 			}
-			right, err := strconv.Atoi(argv[i+4])
+			top, err := cli.ParseInt(vals[2], "top value")
 			if err != nil {
-				return parsed, fmt.Errorf("invalid right value: %w", err)
+				return parsed, err
 			}
-			bottom, err := strconv.Atoi(argv[i+5])
+			right, err := cli.ParseInt(vals[3], "right value")
 			if err != nil {
-				return parsed, fmt.Errorf("invalid bottom value: %w", err)
+				return parsed, err
 			}
-			output := argv[i+6]
+			bottom, err := cli.ParseInt(vals[4], "bottom value")
+			if err != nil {
+				return parsed, err
+			}
+			output := vals[5]
 			parsed.Pages = append(parsed.Pages, crop.PageOption{
 				Number: pageNo,
 				Left:   left,
@@ -73,37 +74,37 @@ func parseArgs(argv []string) (args, error) {
 				Bottom: bottom,
 				Output: output,
 			})
-			i += 6
+			i = next
 		case "--space":
-			if i+1 >= len(argv) {
-				return parsed, fmt.Errorf("missing value for --space")
-			}
-			val, err := strconv.Atoi(argv[i+1])
+			val, next, err := cli.RequireValue(argv, i, "--space")
 			if err != nil {
-				return parsed, fmt.Errorf("invalid --space: %w", err)
+				return parsed, err
 			}
-			parsed.Space = val
-			i++
+			parsed.Space, err = cli.ParseInt(val, "--space")
+			if err != nil {
+				return parsed, err
+			}
+			i = next
 		case "--threshold":
-			if i+1 >= len(argv) {
-				return parsed, fmt.Errorf("missing value for --threshold")
-			}
-			val, err := strconv.ParseFloat(argv[i+1], 64)
+			val, next, err := cli.RequireValue(argv, i, "--threshold")
 			if err != nil {
-				return parsed, fmt.Errorf("invalid --threshold: %w", err)
+				return parsed, err
 			}
-			parsed.Threshold = val
-			i++
+			parsed.Threshold, err = cli.ParseFloat(val, "--threshold")
+			if err != nil {
+				return parsed, err
+			}
+			i = next
 		case "--dpi":
-			if i+1 >= len(argv) {
-				return parsed, fmt.Errorf("missing value for --dpi")
-			}
-			val, err := strconv.ParseFloat(argv[i+1], 64)
+			val, next, err := cli.RequireValue(argv, i, "--dpi")
 			if err != nil {
-				return parsed, fmt.Errorf("invalid --dpi: %w", err)
+				return parsed, err
 			}
-			parsed.DPI = val
-			i++
+			parsed.DPI, err = cli.ParseFloat(val, "--dpi")
+			if err != nil {
+				return parsed, err
+			}
+			i = next
 		default:
 			return parsed, fmt.Errorf("unknown argument: %s", argv[i])
 		}

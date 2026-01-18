@@ -62,6 +62,34 @@ crop_all_pdf --dir ./pdfs --threshold 0.1
 crop_all_pdf --help
 ```
 
+## Library usage
+
+Import the package and call the crop helpers directly. Example: crop every page and write the cropped pages back into a single (multi-page) PDF, using defaults plus a bit of extra whitespace.
+
+```go
+package main
+
+import (
+  "log"
+
+  "pdf-crop/pkg/crop"
+)
+
+func main() {
+  opts := crop.DefaultOptions()
+  opts.Space = 8 // add extra points of whitespace
+
+  results, err := crop.CropAllPagesToSingleFile("input.pdf", "output.pdf", opts)
+  if err != nil {
+    log.Fatalf("crop: %v", err)
+  }
+
+  for _, r := range results {
+    log.Printf("page %d => %s (media %s)", r.PageNo, r.Output, crop.RectString(r.Media))
+  }
+}
+```
+
 ## Page Size Fallback
 
 - When a page's `MediaBox` is missing or page boundaries cannot be read, cropping falls back to A4 dimensions: 595 × 842 points.
