@@ -1,4 +1,4 @@
-# pdfTools
+# pdf-crop
 
 Go reimplementation of the Python `pdf_crop` workflow with an exact raster-based detection approach.
 
@@ -11,25 +11,19 @@ Two CLIs are provided:
 
 ## Build
 
-### Host build (native CGO)
+Use the Makefile for all builds.
 
-Build on each target OS/arch when using CGO.
+- Current platform (CGO by default):
+  - `make build`
+- No CGO (purego mode):
+  - `make nocgo`
+- Cross-compile (Linux/macOS/Windows, nocgo):
+  - `make build-all`
+  - Or specific targets: `make build-linux`, `make build-linux-arm64`, `make build-darwin`, `make build-darwin-arm64`, `make build-windows`, `make build-windows-arm64`
 
-- PowerShell (Windows):
-  - `scripts/build.ps1`
-- Bash (Linux/macOS):
-  - `scripts/build.sh`
+Outputs go to `dist/` by default (override with `DIST_DIR=...`).
 
-### Cross build (no CGO)
-
-Cross-compiling with CGO is not supported in these scripts. Use `--nocgo`/`-NoCgo` for purego mode (requires MuPDF shared libs at runtime).
-
-- PowerShell:
-  - `scripts/build.ps1 -All -NoCgo`
-- Bash:
-  - `scripts/build.sh --all --nocgo`
-
-Outputs are placed in `dist/` by default.
+Windows note: Use GNU Make via Git Bash, MSYS2, or WSL. For CGO builds ensure MSVC Build Tools and MuPDF dev libraries are installed; otherwise use `make nocgo`.
 
 ## Runtime dependencies (CGO builds)
 

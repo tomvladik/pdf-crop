@@ -1,0 +1,22 @@
+# Ignore build artifacts
+dist/
+*.exe
+*.out
+
+# Ignore development files
+.git/
+.gitignore
+.vscode/
+*.log
+
+# Ignore test files
+coverage.out
+coverage.txt
+cov.out
+
+# Ignore documentation
+README.md
+LICENSE
+
+# Ignore scripts (we'll use Makefile instead)
+scripts/

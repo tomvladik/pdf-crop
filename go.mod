@@ -1,4 +1,4 @@
-module pdfTools
+module pdf-crop
 
 go 1.24.0
 
