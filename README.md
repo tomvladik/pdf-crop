@@ -45,6 +45,25 @@ Install MuPDF via Homebrew and ensure clang is available.
 
 Purego mode still requires MuPDF shared libraries and libffi at runtime. Set the exact MuPDF version with `FZ_VERSION` (or set `fitz.FzVersion` in code) to match the installed library.
 
+### Windows Runtime Setup (Purego/No-CGO builds)
+
+When using a Windows binary built from Linux via `make build-windows`:
+
+1. **Download MuPDF libraries** matching your binary architecture:
+   - 64-bit: Download `mupdf-X.Y-windows-x64.zip` from [MuPDF releases](https://mupdf.com/releases)
+   - 32-bit: Download `mupdf-X.Y-windows-x32.zip`
+
+2. **Install to system PATH**:
+   - Extract and add the directory containing `mupdf.dll` to your Windows `PATH`
+   - Or place `mupdf.dll` in the same directory as the binary
+
+3. **Install libffi** (for FFI bindings):
+   - Download libffi from [GitHub releases](https://github.com/winehq/wine/tree/master/libs/wine)
+   - Or install via package manager (e.g., `choco install libffi` on Windows with Chocolatey)
+   - Ensure `libffi.dll` is in `PATH` or same directory as binary
+
+**Note**: Verify the MuPDF version matches what the binary was built against. You can check the MuPDF version in the go-fitz dependency in `go.mod`.
+
 ## Usage
 
 ### pdf_crop

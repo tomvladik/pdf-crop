@@ -8,6 +8,12 @@
 # 
 # Cross-compilation targets (build-linux, build-darwin, etc) require POSIX shell and GOOS env vars
 # and work natively only in Linux or the devcontainer.
+#
+# Windows Cross-Compilation Note:
+#   - Windows binaries are built with CGO_ENABLED=0 and the 'nocgo' tag (purego mode)
+#   - This is necessary because CGO cannot cross-compile from Linux to Windows
+#   - Windows users running the binary must install MuPDF and libffi runtime libraries
+#   - See README.md "Windows Runtime Setup" for installation instructions
 
 # Module name from go.mod
 MODULE = pdf-crop
