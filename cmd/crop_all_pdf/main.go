@@ -7,8 +7,8 @@ import (
 	"path/filepath"
 	"strconv"
 
-	"pdf-crop/internal/crop"
 	"pdf-crop/internal/cli"
+	"pdf-crop/internal/crop"
 )
 
 type args struct {

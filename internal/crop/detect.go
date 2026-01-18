@@ -78,7 +78,7 @@ func detectCenter(d detectData) (int, int) {
 			nonZero = nnz
 		}
 	}
-	
+
 	nonZero = -1
 	for j := 0; j < d.width; j++ {
 		nnz := d.colCounts[j]
