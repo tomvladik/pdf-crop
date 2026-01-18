@@ -309,6 +309,30 @@ func TestDetectFrameBorder(t *testing.T) {
 	}
 }
 
+func TestDetectFrameBorder_ThresholdClampToSpace(t *testing.T) {
+	// Create content with a border-like region
+	nonWhite := []image.Point{}
+	for y := 10; y < 90; y++ {
+		for x := 10; x < 90; x++ {
+			if y < 15 || y > 85 || x < 15 || x > 85 {
+				nonWhite = append(nonWhite, image.Point{X: x, Y: y})
+			}
+		}
+	}
+	img := createTestImage(100, 100, nonWhite)
+
+	// Set threshold very high; expect it to be clamped to space internally.
+	space := 3
+	threshold := 0.9 // 90% of size -> should clamp to space
+	cropFrom := "border"
+
+	left, top, right, bottom := detectFrame(img, space, threshold, cropFrom)
+	// Fractions should be within bounds and reflect border detection
+	if !(left > 0 && top > 0 && right < 1 && bottom < 1) {
+		t.Errorf("border detection failed with clamp: l=%.2f t=%.2f r=%.2f b=%.2f", left, top, right, bottom)
+	}
+}
+
 func TestDetectFrameEmptyImage(t *testing.T) {
 	// Test with empty (all white) image
 	img := createTestImage(100, 100, []image.Point{})
@@ -323,5 +347,14 @@ func TestDetectFrameEmptyImage(t *testing.T) {
 	if left != 0 || top != 0 || right != 0 || bottom != 0 {
 		t.Errorf("Expected all zeros for empty image, got (%f, %f, %f, %f)",
 			left, top, right, bottom)
+	}
+}
+
+func TestDetectFrameZeroSizeImage(t *testing.T) {
+	// Zero-size image
+	img := image.NewRGBA(image.Rect(0, 0, 0, 0))
+	left, top, right, bottom := detectFrame(img, 5, 0.1, "center")
+	if left != 0 || top != 0 || right != 0 || bottom != 0 {
+		t.Errorf("expected all zeros for zero-size image, got (%f, %f, %f, %f)", left, top, right, bottom)
 	}
 }

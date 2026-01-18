@@ -62,6 +62,12 @@ crop_all_pdf --dir ./pdfs --threshold 0.1
 crop_all_pdf --help
 ```
 
+## Page Size Fallback
+
+- When a page's `MediaBox` is missing or page boundaries cannot be read, cropping falls back to A4 dimensions: 595 × 842 points.
+- This fallback only influences the computed crop rectangle; existing PDFs with valid page sizes are used as-is.
+- If you need a different default, ensure your input PDF defines `MediaBox` for all pages or pre-process it to set page boundaries.
+
 ## License
 
 Project license: AGPL-3.0. See [LICENSE](LICENSE).

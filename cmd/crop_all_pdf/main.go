@@ -8,6 +8,7 @@ import (
 	"strconv"
 
 	"pdf-crop/internal/crop"
+	"pdf-crop/internal/cli"
 )
 
 type args struct {
@@ -20,17 +21,7 @@ type args struct {
 var errHelp = errors.New("help requested")
 
 func printUsage() {
-	fmt.Println("crop_all_pdf - Crop all PDFs in a directory")
-	fmt.Println("")
-	fmt.Println("Usage:")
-	fmt.Println("  crop_all_pdf --dir <path> [--threshold <float>] [--space <int>] [--dpi <float>]")
-	fmt.Println("")
-	fmt.Println("Options:")
-	fmt.Println("  -d, --dir           Directory containing PDFs (default: current directory)")
-	fmt.Println("      --threshold      Detection threshold (default: 0.1)")
-	fmt.Println("      --space          Extra whitespace in points (default: 5)")
-	fmt.Println("      --dpi            Rasterization DPI (default: 128)")
-	fmt.Println("  -h, --help          Show this help and exit")
+	fmt.Print(cli.CropAllPdfUsage())
 }
 
 func parseArgs(argv []string) (args, error) {

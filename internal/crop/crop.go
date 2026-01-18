@@ -46,11 +46,7 @@ func DefaultOptions() Options {
 	}
 }
 
-func CropDocument(inputFile, outputFile string, opts Options) error {
-	if outputFile == "" {
-		return fmt.Errorf("output file is required")
-	}
-
+func normalizeOptions(opts *Options) {
 	if opts.DPI <= 0 {
 		opts.DPI = 128
 	}
@@ -63,6 +59,13 @@ func CropDocument(inputFile, outputFile string, opts Options) error {
 	if opts.CropFrom == "" {
 		opts.CropFrom = "center"
 	}
+}
+
+func CropDocument(inputFile, outputFile string, opts Options) error {
+	if outputFile == "" {
+		return fmt.Errorf("output file is required")
+	}
+	normalizeOptions(&opts)
 
 	doc, err := fitz.New(inputFile)
 	if err != nil {
@@ -98,18 +101,7 @@ func CropDocument(inputFile, outputFile string, opts Options) error {
 }
 
 func CropPages(inputFile string, pageOptions []PageOption, opts Options) ([]PageResult, error) {
-	if opts.DPI <= 0 {
-		opts.DPI = 128
-	}
-	if opts.Space <= 0 {
-		opts.Space = 5
-	}
-	if opts.Threshold <= 0 {
-		opts.Threshold = 0.008
-	}
-	if opts.CropFrom == "" {
-		opts.CropFrom = "center"
-	}
+	normalizeOptions(&opts)
 
 	doc, err := fitz.New(inputFile)
 	if err != nil {
@@ -182,19 +174,7 @@ func CropAllPagesToSingleFile(inputFile, outputFile string, opts Options) ([]Pag
 	if outputFile == "" {
 		return nil, fmt.Errorf("output file is required")
 	}
-
-	if opts.DPI <= 0 {
-		opts.DPI = 128
-	}
-	if opts.Space <= 0 {
-		opts.Space = 5
-	}
-	if opts.Threshold <= 0 {
-		opts.Threshold = 0.008
-	}
-	if opts.CropFrom == "" {
-		opts.CropFrom = "center"
-	}
+	normalizeOptions(&opts)
 
 	doc, err := fitz.New(inputFile)
 	if err != nil {
@@ -271,14 +251,15 @@ func rectFromTopLeft(media *types.Rectangle, left, top, right, bottom int) *type
 func pageMediaBox(ctx *model.Context, pageNumber int) (*types.Rectangle, error) {
 	pages, err := ctx.PageBoundaries(types.IntSet{pageNumber: true})
 	if err != nil {
-		return nil, err
+		// Fallback to default A4 size.
+		return types.RectForDim(595, 842), nil
 	}
 	if len(pages) == 0 {
-		return nil, fmt.Errorf("missing page boundaries")
+		return types.RectForDim(595, 842), nil
 	}
 	media := pages[0].MediaBox()
 	if media == nil {
-		return nil, fmt.Errorf("missing media box")
+		return types.RectForDim(595, 842), nil
 	}
 	return media, nil
 }
