@@ -280,7 +280,7 @@ func TestDefaultOutputFile(t *testing.T) {
 			expected:  "my.test.file - page  1.pdf",
 		},
 	}
-	
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			result := defaultOutputFile(tt.inputFile, tt.pageNo)
@@ -297,11 +297,11 @@ func TestSetCropBoxWithNil(t *testing.T) {
 	// This test doesn't actually call setCropBox since it requires a model.Context,
 	// but we test the nil check logic
 	var rect *types.Rectangle = nil
-	
+
 	if rect != nil {
 		t.Error("Rectangle should be nil")
 	}
-	
+
 	// Test non-nil rectangle
 	rect = types.NewRectangle(10, 20, 100, 200)
 	if rect == nil {
@@ -311,11 +311,11 @@ func TestSetCropBoxWithNil(t *testing.T) {
 
 func TestRectFromTopLeftEdgeCases(t *testing.T) {
 	tests := []struct {
-		name         string
-		media        *types.Rectangle
-		left, top    int
+		name          string
+		media         *types.Rectangle
+		left, top     int
 		right, bottom int
-		description  string
+		description   string
 	}{
 		{
 			name:        "Inverted coordinates",
@@ -354,15 +354,15 @@ func TestRectFromTopLeftEdgeCases(t *testing.T) {
 			description: "Should handle negative values with offset media box",
 		},
 	}
-	
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			result := rectFromTopLeft(tt.media, tt.left, tt.top, tt.right, tt.bottom)
-			
+
 			if result == nil {
 				t.Fatal("Expected non-nil rectangle")
 			}
-			
+
 			// Verify basic properties
 			if result.LL.X > result.UR.X {
 				t.Errorf("LL.X (%f) should be <= UR.X (%f)", result.LL.X, result.UR.X)
@@ -389,9 +389,9 @@ func TestRectFromImageWithDifferentOptions(t *testing.T) {
 			img.Set(x, y, image.Black)
 		}
 	}
-	
+
 	media := types.NewRectangle(0, 0, 612, 792)
-	
+
 	tests := []struct {
 		name     string
 		opts     Options
@@ -454,12 +454,12 @@ func TestRectFromImageWithDifferentOptions(t *testing.T) {
 			},
 		},
 	}
-	
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			result := rectFromImage(img, media, tt.opts)
 			tt.validate(t, result)
-			
+
 			// Verify bounds are within media box
 			if result.LL.X < media.LL.X-1 || result.UR.X > media.UR.X+1 {
 				t.Errorf("X coordinates out of media bounds: [%f, %f] not in [%f, %f]",
@@ -483,7 +483,7 @@ func TestPageOption(t *testing.T) {
 		Bottom: 200,
 		Output: "output.pdf",
 	}
-	
+
 	if opt.Number != 5 {
 		t.Errorf("Expected Number 5, got %d", opt.Number)
 	}
@@ -499,7 +499,7 @@ func TestPageResult(t *testing.T) {
 	// Test PageResult struct
 	media := types.NewRectangle(0, 0, 612, 792)
 	crop := types.NewRectangle(10, 10, 600, 780)
-	
+
 	result := PageResult{
 		PageNo:  3,
 		Media:   media,
@@ -507,7 +507,7 @@ func TestPageResult(t *testing.T) {
 		Output:  "page3.pdf",
 		WasAuto: true,
 	}
-	
+
 	if result.PageNo != 3 {
 		t.Errorf("Expected PageNo 3, got %d", result.PageNo)
 	}
