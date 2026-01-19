@@ -1,13 +1,12 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
+	"strconv"
 
-	cli "pdf-crop/internal/cli"
-	"pdf-crop/pkg/crop"
+	"pdf-crop/internal/crop"
 )
 
 type args struct {
@@ -15,12 +14,6 @@ type args struct {
 	Threshold float64
 	Space     int
 	DPI       float64
-}
-
-var errHelp = errors.New("help requested")
-
-func printUsage() {
-	fmt.Print(cli.CropAllPdfUsage())
 }
 
 func parseArgs(argv []string) (args, error) {
@@ -31,45 +24,42 @@ func parseArgs(argv []string) (args, error) {
 	}
 	for i := 0; i < len(argv); i++ {
 		switch argv[i] {
-		case "-h", "--help":
-			return parsed, errHelp
 		case "-d", "--dir":
-			val, next, err := cli.RequireValue(argv, i, argv[i])
-			if err != nil {
-				return parsed, err
+			if i+1 >= len(argv) {
+				return parsed, fmt.Errorf("missing value for %s", argv[i])
 			}
-			parsed.Dir = val
-			i = next
+			parsed.Dir = argv[i+1]
+			i++
 		case "--threshold":
-			val, next, err := cli.RequireValue(argv, i, "--threshold")
-			if err != nil {
-				return parsed, err
+			if i+1 >= len(argv) {
+				return parsed, fmt.Errorf("missing value for --threshold")
 			}
-			parsed.Threshold, err = cli.ParseFloat(val, "--threshold")
+			val, err := strconv.ParseFloat(argv[i+1], 64)
 			if err != nil {
-				return parsed, err
+				return parsed, fmt.Errorf("invalid --threshold: %w", err)
 			}
-			i = next
+			parsed.Threshold = val
+			i++
 		case "--space":
-			val, next, err := cli.RequireValue(argv, i, "--space")
-			if err != nil {
-				return parsed, err
+			if i+1 >= len(argv) {
+				return parsed, fmt.Errorf("missing value for --space")
 			}
-			parsed.Space, err = cli.ParseInt(val, "--space")
+			val, err := strconv.Atoi(argv[i+1])
 			if err != nil {
-				return parsed, err
+				return parsed, fmt.Errorf("invalid --space: %w", err)
 			}
-			i = next
+			parsed.Space = val
+			i++
 		case "--dpi":
-			val, next, err := cli.RequireValue(argv, i, "--dpi")
-			if err != nil {
-				return parsed, err
+			if i+1 >= len(argv) {
+				return parsed, fmt.Errorf("missing value for --dpi")
 			}
-			parsed.DPI, err = cli.ParseFloat(val, "--dpi")
+			val, err := strconv.ParseFloat(argv[i+1], 64)
 			if err != nil {
-				return parsed, err
+				return parsed, fmt.Errorf("invalid --dpi: %w", err)
 			}
-			i = next
+			parsed.DPI = val
+			i++
 		default:
 			return parsed, fmt.Errorf("unknown argument: %s", argv[i])
 		}
@@ -80,14 +70,7 @@ func parseArgs(argv []string) (args, error) {
 func main() {
 	parsed, err := parseArgs(os.Args[1:])
 	if err != nil {
-		if errors.Is(err, errHelp) {
-			printUsage()
-			os.Exit(0)
-		}
-		// Print error and usage to stdout as requested
-		fmt.Println(err)
-		fmt.Println()
-		printUsage()
+		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
 
